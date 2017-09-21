@@ -6,5 +6,9 @@ meta:
 	ADDON_URL = https://github.com/ofTheo/ofxKinectV2
 
 osx:
-	
 	ADDON_FRAMEWORKS = OpenCL
+
+linux64:
+    ADDON_PKG_CONFIG_LIBRARIES = libusb-1.0
+    ADDON_LDFLAGS = -Llibfreenect2
+    ADDON_LDFLAGS += -lOpenCL
