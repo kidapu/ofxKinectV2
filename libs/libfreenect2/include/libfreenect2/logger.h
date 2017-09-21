@@ -29,6 +29,8 @@
 #ifndef LIBFREENECT2_LOGGER_H_
 #define LIBFREENECT2_LOGGER_H_
 
+#undef None
+
 #include <string>
 
 #include <libfreenect2/config.h>
