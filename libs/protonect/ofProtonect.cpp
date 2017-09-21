@@ -41,6 +41,7 @@
 
 #include "ofProtonect.h"
 
+
 ofProtonect::ofProtonect(){
     bOpened = false;
 
@@ -51,55 +52,69 @@ ofProtonect::ofProtonect(){
     }
 }
 
-int ofProtonect::openKinect(string serial){
-          
+int ofProtonect::openKinect(string serial)
+{
 //      pipeline = new libfreenect2::CpuPacketPipeline();
 //        pipeline = new libfreenect2::OpenGLPacketPipeline();
         pipeline = new libfreenect2::OpenCLPacketPipeline();
 
-      if(pipeline)
-      {
-        dev = freenect2.openDevice(serial, pipeline);
-      }
+    if(pipeline)
+    {
+      dev = freenect2.openDevice(serial, pipeline);
+    }
 
-      if(dev == 0)
-      {
-        ofLogError("ofProtonect::openKinect")  << "failure opening device with serial " << serial;
-        return -1;
-      }
+    if(dev == 0)
+    {
+      ofLogError("ofProtonect::openKinect")  << "failure opening device with serial " << serial;
+      return -1;
+    }
 
-    
-      listener = new libfreenect2::SyncMultiFrameListener(libfreenect2::Frame::Color | libfreenect2::Frame::Ir | libfreenect2::Frame::Depth);
-      undistorted = new libfreenect2::Frame(512, 424, 4);
-      registered  = new libfreenect2::Frame(512, 424, 4);
+  
+    listener = new libfreenect2::SyncMultiFrameListener(libfreenect2::Frame::Color | libfreenect2::Frame::Ir | libfreenect2::Frame::Depth);
+    undistorted = new libfreenect2::Frame(512, 424, 4);
+    registered  = new libfreenect2::Frame(512, 424, 4);
 
-      dev->setColorFrameListener(listener);
-      dev->setIrAndDepthFrameListener(listener);
-      dev->start();
 
-      ofLogVerbose("ofProtonect::openKinect") << "device serial: " << dev->getSerialNumber();
-      ofLogVerbose("ofProtonect::openKinect") << "device firmware: " << dev->getFirmwareVersion();
+    dev->setColorFrameListener(listener);
+    dev->setIrAndDepthFrameListener(listener);
+    dev->start();
 
-      registration = new libfreenect2::Registration(dev->getIrCameraParams(), dev->getColorCameraParams());
+    ofLogVerbose("ofProtonect::openKinect") << "device serial: " << dev->getSerialNumber();
+    ofLogVerbose("ofProtonect::openKinect") << "device firmware: " << dev->getFirmwareVersion();
+
+    registration = new libfreenect2::Registration(dev->getIrCameraParams(), dev->getColorCameraParams());
 
     bOpened = true;
     
     return 0;
 }
 
-void ofProtonect::updateKinect(ofPixels & rgbPixels, ofFloatPixels & depthPixels){
+void ofProtonect::updateKinect(ofPixels & rgbPixels, ofFloatPixels & depthPixels, ofFloatPixels & bigdepthPixels)
+{
   
-    if(bOpened){
+    if(bOpened)
+    {
         listener->waitForNewFrame(frames);
         libfreenect2::Frame *rgb = frames[libfreenect2::Frame::Color];
         libfreenect2::Frame *ir = frames[libfreenect2::Frame::Ir];
         libfreenect2::Frame *depth = frames[libfreenect2::Frame::Depth];
+        libfreenect2::Frame bigdepth(1920, 1080 + 2, 4); // check here (https://github.com/OpenKinect/libfreenect2/issues/337) and here (https://github.com/OpenKinect/libfreenect2/issues/464) why depth2rgb image should be bigger
 
+        //
+        registration->apply(rgb, depth, undistorted, registered, true, &bigdepth);
+
+        //
         rgbPixels.setFromPixels(rgb->data, rgb->width, rgb->height, 3);
         depthPixels.setFromPixels((float *)depth->data, ir->width, ir->height, 1);
-
+        bigdepthPixels.setFromPixels((float *)bigdepth.data, bigdepth.width, bigdepth.height, 1);
+      
         listener->release(frames);
     }
+}
+
+void ofProtonect::apply(int dx, int dy, float dz, float &cx, float &cy)
+{
+  registration->apply(dx, dy, dz, cx, cy);
 }
 
 int ofProtonect::closeKinect(){
@@ -120,7 +135,7 @@ int ofProtonect::closeKinect(){
 
       delete registered;
       registered = NULL;
-      
+    
       delete registration;
       bOpened = false; 
   }

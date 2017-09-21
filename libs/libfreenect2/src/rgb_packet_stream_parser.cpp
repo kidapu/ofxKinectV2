@@ -64,7 +64,7 @@ LIBFREENECT2_PACK(struct RgbPacketFooter {
 RgbPacketStreamParser::RgbPacketStreamParser() :
     processor_(noopProcessor<RgbPacket>())
 {
-  buffer_.allocate(1920*1080*3+sizeof(RgbPacket));
+  buffer_.allocate(1920*1080*3);
 }
 
 RgbPacketStreamParser::~RgbPacketStreamParser()

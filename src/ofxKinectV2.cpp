@@ -90,9 +90,13 @@ bool ofxKinectV2::open(string serial){
     if(retVal==0){
         lastFrameNo = -1;
         startThread(true);
+//        pointCloudFront.resize(512*424);
+//        pointCloud = pointCloudBack = pointCloudFront;
+//        pointCloudColor.resize(512*424);
     }else{
         return false;
     }
+  
     
     bOpened = true;
     return true;
@@ -102,15 +106,33 @@ bool ofxKinectV2::open(string serial){
 void ofxKinectV2::threadedFunction(){
 
     while(isThreadRunning()){
-        protonect.updateKinect(rgbPixelsBack, depthPixelsBack);
+        protonect.updateKinect(rgbPixelsBack, depthPixelsBack, bigdepthPixelsBack);
         rgbPixelsFront.swap(rgbPixelsBack);
         depthPixelsFront.swap(depthPixelsBack);
+        bigdepthPixelsFront.swap(bigdepthPixelsBack);
+      
                 
         lock();
-        bNewBuffer = true;
+        {
+          bNewBuffer = true;
+        }
         unlock();
     }
 }
+
+//--------------------------------------------------------------------------------
+//ofPoint ofxKinectV2::getWorldCoordinateAt(int x, int y){
+//    int index = x + y * 512;
+//    if( index >= 0 && index < pointCloud.size() ){
+//        return pointCloud[index];
+//    }
+//}
+
+////--------------------------------------------------------------------------------
+//vector <ofPoint> ofxKinectV2::getWorldCoordinates(){
+//    return pointCloud;
+//}
+//
 
 //--------------------------------------------------------------------------------
 void ofxKinectV2::update(){
@@ -123,30 +145,37 @@ void ofxKinectV2::update(){
         lock();
             rgbPix = rgbPixelsFront;
             rawDepthPixels = depthPixelsFront;
+            rawBigDepthPixels = bigdepthPixelsFront;
+//            pointCloud = pointCloudFront;
             bNewBuffer = false;
         unlock();
-        
-        if( rawDepthPixels.size() > 0 ){
-            if( depthPix.getWidth() != rawDepthPixels.getWidth() ){
-                depthPix.allocate(rawDepthPixels.getWidth(), rawDepthPixels.getHeight(), 1);
-            }
-        
-            float * pixelsF         = rawDepthPixels.getData();
-            unsigned char * pixels  = depthPix.getData();
-                
-            for(int i = 0; i < depthPix.size(); i++){
-                pixels[i] = ofMap(rawDepthPixels[i], minDistance, maxDistance, 255, 0, true);
-                if( pixels[i] == 255 ){
-                    pixels[i] = 0;
-                }
-            }
-
-        }
+//        
+//        if( rawDepthPixels.size() > 0 )
+//        {
+//            if( depthPix.getWidth() != rawDepthPixels.getWidth() )
+//            {
+//                depthPix.allocate(rawDepthPixels.getWidth(), rawDepthPixels.getHeight(), 1);
+//            }
+//        
+//            float * pixelsF         = rawDepthPixels.getData();
+//            unsigned char * pixels  = depthPix.getData();
+//                
+//            for(int i = 0; i < depthPix.size(); i++)
+//            {
+//                pixels[i] = ofMap(rawDepthPixels[i], minDistance, maxDistance, 255, 0, true);
+//                if( pixels[i] == 255 )
+//                {
+//                    pixels[i] = 0;
+//                }
+//            }
+//
+//        }
         
         
         bNewFrame = true; 
     }
 }
+
 
 //--------------------------------------------------------------------------------
 bool ofxKinectV2::isFrameNew(){
@@ -164,6 +193,11 @@ ofFloatPixels ofxKinectV2::getRawDepthPixels(){
 }
 
 //--------------------------------------------------------------------------------
+ofFloatPixels ofxKinectV2::getRawBigDepthPixels(){
+  return rawBigDepthPixels;
+}
+
+//--------------------------------------------------------------------------------
 ofPixels ofxKinectV2::getRgbPixels(){
     return rgbPix; 
 }
@@ -176,5 +210,40 @@ void ofxKinectV2::close(){
         bOpened = false;
     }
 }
+
+
+
+
+//--------------------------------------------------------------------------------
+// Added by kidapu
+//--------------------------------------------------------------------------------
+float ofxKinectV2::getDistanceInDepthCoord(int x, int y)
+{
+    if (!rawDepthPixels.isAllocated())
+    {
+        return 0.0f;
+    }
+    return rawDepthPixels[x + y * rawDepthPixels.getWidth()]; // mm
+}
+
+float ofxKinectV2::getDistanceInRgbCoord(int x, int y)
+{
+  if(!rawBigDepthPixels.isAllocated())
+  {
+    return;
+  }
+  return rawBigDepthPixels[x + (y+1) * rawBigDepthPixels.getWidth()]; //mm
+}
+
+void ofxKinectV2::depthToColor(ofPoint depthPoint, ofPoint & colorPoint)
+{
+    float z = getDistanceInDepthCoord(depthPoint.x, depthPoint.y) ;
+    protonect.apply(depthPoint.x, depthPoint.y, z, colorPoint.x, colorPoint.y);
+    
+    //    cout << "- - - - -  " << endl;
+    //    printf("x:%f,y:%f,z:%f \n",depthPoint.x, depthPoint.y, z);
+    //    printf("x:%f,y:%f \n",colorPoint.x, colorPoint.y);
+}
+
 
 

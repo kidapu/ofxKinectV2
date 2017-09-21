@@ -35,10 +35,25 @@ class ofxKinectV2 : public ofThread{
     
         bool isFrameNew();
     
+    
+        // Added by kidapu
+        float getDistanceInDepthCoord(int x, int y);
+        float getDistanceInRgbCoord(int x, int y);
+        void depthToColor(ofPoint depthPoint, ofPoint & colorPoint);
+        //    void colorToDepth(ofPoint colorPoint, ofPoint & depthPoint);
+    
+    
+//        ofPoint getWorldCoordinateAt(int x, int y);
+//        vector <ofPoint> getWorldCoordinates();
+//        vector <ofColor> getWorldCoordinateColor(){
+//            return pointCloudColor;
+//        }
+  
         ofPixels getDepthPixels();
         ofPixels getRgbPixels();
         ofFloatPixels getRawDepthPixels();
-    
+        ofFloatPixels getRawBigDepthPixels();
+  
         ofParameterGroup params;
         ofParameter <float> minDistance;
         ofParameter <float> maxDistance;
@@ -49,6 +64,7 @@ class ofxKinectV2 : public ofThread{
         ofPixels rgbPix;
         ofPixels depthPix;
         ofFloatPixels rawDepthPixels;
+        ofFloatPixels rawBigDepthPixels;
     
         bool bNewBuffer;
         bool bNewFrame;
@@ -60,5 +76,20 @@ class ofxKinectV2 : public ofThread{
         ofPixels rgbPixelsFront;
         ofFloatPixels depthPixelsBack;
         ofFloatPixels depthPixelsFront;
-        int lastFrameNo; 
+  
+        // added by kidapu
+        ofFloatPixels bigdepthPixelsBack;
+        ofFloatPixels bigdepthPixelsFront;
+    
+//        vector <ofPoint> pointCloudFront;
+//        vector <ofPoint> pointCloudBack;
+//        vector <ofPoint> pointCloud;
+//        vector <ofColor> pointCloudColor;
+
+        int lastFrameNo;
+    
+    
+        // Added by kidapu
+        ofFloatPixels bigDepthPixelsBack;
+        libfreenect2::Registration * registration;
 };

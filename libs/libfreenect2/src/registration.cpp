@@ -79,6 +79,8 @@ void Registration::depth_to_color(float mx, float my, float& rx, float& ry) cons
   ry = (wy / color_q) + color.cy;
 }
 
+    
+    
 /**
  * Undistort/register a single depth data point
  */
@@ -277,7 +279,7 @@ void Registration::getPointXYZRGB (const Frame* undistorted, const Frame* regist
   if (isnan(depth_val) || depth_val <= 0.001)
   {
     //depth value is not valid
-    x = y = z = bad_point;
+    x = y = z = 0.0;
     rgb = 0;
     return;
   }

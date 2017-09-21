@@ -19,7 +19,8 @@ ofRGBPacketProcessor::~ofRGBPacketProcessor(){
 }
 
 void ofRGBPacketProcessor::newFrame(){
-    frame = new Frame(1920, 1080, 3);
+//    frame = new Frame(1920, 1080, 3);
+    frame = new Frame(1920, 1080, 4);
 }
 
 void ofRGBPacketProcessor::process(const libfreenect2::RgbPacket &packet){

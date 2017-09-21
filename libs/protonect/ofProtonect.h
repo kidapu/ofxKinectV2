@@ -20,18 +20,37 @@
 class ofProtonect{
 
     public:
-
-
-    
+  
         ofProtonect();
     
         int openKinect(std::string serialNo);
-        void updateKinect(ofPixels & rgbPixels, ofFloatPixels & depthPixels);
+//        void updateKinect(ofPixels & rgbPixels, ofFloatPixels & depthPixels, vector <ofPoint> & pcPoints);
+//        void updateKinect(ofPixels & rgbPixels, ofFloatPixels & depthPixels, vector <ofPoint> &pcPoints, vector<ofColor> & pcColors);
+//        void updateKinect(ofPixels & rgbPixels, ofFloatPixels & depthPixels, ofFloatPixels & bigdepthPixels ,vector <ofPoint> &pcPoints, vector<ofColor> & pcColors);
+        void updateKinect(ofPixels & rgbPixels, ofFloatPixels & depthPixels, ofFloatPixels & bigdepthPixels);
         int closeKinect();
     
         libfreenect2::Freenect2 & getFreenect2Instance(){
             return freenect2;
         }
+  
+  
+        //---------
+        // Added by kidapu
+        void apply(int dx, int dy, float dz, float &cx, float &cy);
+  
+  
+//        libfreenect2::Freenect2Device::ColorCameraParams getColorCameraParams() {
+//            if (!dev) {return;}
+//            return dev->getColorCameraParams();
+//        }
+//        libfreenect2::Freenect2Device::IrCameraParams getIrCameraParams() {
+//            if (!dev) {return;}
+//            return dev->getIrCameraParams();
+//        }
+  
+        
+
   
     protected:
   
@@ -46,8 +65,9 @@ class ofProtonect{
 
         libfreenect2::Registration* registration;
         libfreenect2::SyncMultiFrameListener * listener;
-        libfreenect2::Frame  * undistorted = NULL;
-        libfreenect2::Frame  * registered = NULL;
+        libfreenect2::Frame * undistorted = NULL;
+        libfreenect2::Frame * registered = NULL;
+//        libfreenect2::Frame  * rgb4 = NULL;
         libfreenect2::Frame  * bigFrame = NULL;
 
 };
