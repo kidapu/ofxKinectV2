@@ -230,7 +230,7 @@ float ofxKinectV2::getDistanceInRgbCoord(int x, int y)
 {
   if(!rawBigDepthPixels.isAllocated())
   {
-    return;
+    return 0.0f;
   }
   return rawBigDepthPixels[x + (y+1) * rawBigDepthPixels.getWidth()]; //mm
 }
