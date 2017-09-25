@@ -235,7 +235,7 @@ float ofxKinectV2::getDistanceInRgbCoord(int x, int y)
   return rawBigDepthPixels[x + (y+1) * rawBigDepthPixels.getWidth()]; //mm
 }
 
-void ofxKinectV2::getWorldCoordinateByRgb(int u, int v, float & x, float & y, float & z)
+void ofxKinectV2::getWorldCoordinateByRgb(int cx, int cy, float & x, float & y, float & z)
 {
   const float badPoint = std::numeric_limits<float>::quiet_NaN();
   if(!rawBigDepthPixels.isAllocated())
@@ -243,7 +243,7 @@ void ofxKinectV2::getWorldCoordinateByRgb(int u, int v, float & x, float & y, fl
     x = y = z = badPoint;
     return;
   }
-  float depthVal = rawBigDepthPixels[u + (v+1) * rawBigDepthPixels.getWidth()] / 1000.0f; // mm -> m
+  float depthVal = rawBigDepthPixels[cx + (cy+1) * rawBigDepthPixels.getWidth()] / 1000.0f; // mm -> m
   if (isnan(depthVal) || depthVal <= 0.001)
   {
     x = y = z = badPoint;
@@ -252,12 +252,24 @@ void ofxKinectV2::getWorldCoordinateByRgb(int u, int v, float & x, float & y, fl
 
   libfreenect2::Freenect2Device::ColorCameraParams colorParam = protonect.getColorCameraParams();
   
-  printf("%f %f %f %f \n", colorParam.cx, colorParam.cy, colorParam.fx, colorParam.fy);
+  // printf("%f %f %f %f \n", colorParam.cx, colorParam.cy, colorParam.fx, colorParam.fy);
   // x,y,z
-  x = (u + 0.5 - colorParam.cx) * (1/colorParam.fx) * depthVal;
-  y = (v + 0.5 - colorParam.cy) * (1/colorParam.fy) * depthVal;
+  x = (cx + 0.5 - colorParam.cx) * (1/colorParam.fx) * depthVal;
+  y = (cy + 0.5 - colorParam.cy) * (1/colorParam.fy) * depthVal;
   z = depthVal;
   
+}
+
+void ofxKinectV2::getBoxInWorldCoordinate(int cx, int cy, int cw, int ch, float z, float & x, float & y, float & w, float & h)
+{
+    libfreenect2::Freenect2Device::ColorCameraParams colorParam = protonect.getColorCameraParams();
+
+    float depthVal = z; 
+    x = (cx + 0.5 - colorParam.cx) * (1/colorParam.fx) * depthVal;
+    y = (cy + 0.5 - colorParam.cy) * (1/colorParam.fy) * depthVal;
+    z = depthVal;
+    w = cw * (1/colorParam.fx) * depthVal;
+    h = ch * (1/colorParam.fy) * depthVal;
 }
 
 void ofxKinectV2::depthToColor(ofPoint depthPoint, ofPoint & colorPoint)
