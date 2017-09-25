@@ -39,7 +39,9 @@ class ofxKinectV2 : public ofThread{
         // Added by kidapu
         float getDistanceInDepthCoord(int x, int y);
         float getDistanceInRgbCoord(int x, int y);
+        void getWorldCoordinateByRgb(int u, int v, float & x, float & y, float & z);
         void depthToColor(ofPoint depthPoint, ofPoint & colorPoint);
+
         //    void colorToDepth(ofPoint colorPoint, ofPoint & depthPoint);
     
     

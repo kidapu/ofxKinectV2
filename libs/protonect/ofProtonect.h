@@ -38,7 +38,7 @@ class ofProtonect{
         //---------
         // Added by kidapu
         void apply(int dx, int dy, float dz, float &cx, float &cy);
-  
+        libfreenect2::Freenect2Device::ColorCameraParams getColorCameraParams();
   
 //        libfreenect2::Freenect2Device::ColorCameraParams getColorCameraParams() {
 //            if (!dev) {return;}

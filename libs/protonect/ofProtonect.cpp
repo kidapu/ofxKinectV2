@@ -117,6 +117,11 @@ void ofProtonect::apply(int dx, int dy, float dz, float &cx, float &cy)
   registration->apply(dx, dy, dz, cx, cy);
 }
 
+libfreenect2::Freenect2Device::ColorCameraParams ofProtonect::getColorCameraParams()
+{
+  return dev->getColorCameraParams();
+}
+
 int ofProtonect::closeKinect(){
 
   if(bOpened){

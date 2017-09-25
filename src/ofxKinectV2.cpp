@@ -235,6 +235,31 @@ float ofxKinectV2::getDistanceInRgbCoord(int x, int y)
   return rawBigDepthPixels[x + (y+1) * rawBigDepthPixels.getWidth()]; //mm
 }
 
+void ofxKinectV2::getWorldCoordinateByRgb(int u, int v, float & x, float & y, float & z)
+{
+  const float badPoint = std::numeric_limits<float>::quiet_NaN();
+  if(!rawBigDepthPixels.isAllocated())
+  {
+    x = y = z = badPoint;
+    return;
+  }
+  float depthVal = rawBigDepthPixels[u + (v+1) * rawBigDepthPixels.getWidth()] / 1000.0f; // mm -> m
+  if (isnan(depthVal) || depthVal <= 0.001)
+  {
+    x = y = z = badPoint;
+    return;
+  }
+
+  libfreenect2::Freenect2Device::ColorCameraParams colorParam = protonect.getColorCameraParams();
+  
+  printf("%f %f %f %f \n", colorParam.cx, colorParam.cy, colorParam.fx, colorParam.fy);
+  // x,y,z
+  x = (u + 0.5 - colorParam.cx) * (1/colorParam.fx) * depthVal;
+  y = (v + 0.5 - colorParam.cy) * (1/colorParam.fy) * depthVal;
+  z = depthVal;
+  
+}
+
 void ofxKinectV2::depthToColor(ofPoint depthPoint, ofPoint & colorPoint)
 {
     float z = getDistanceInDepthCoord(depthPoint.x, depthPoint.y) ;

@@ -102,7 +102,7 @@ public:
     _kinect->update();
     if( _kinect->isFrameNew() )
     {
-      _texDepth.loadData( _kinect->getRawDepthPixels() );
+//      _texDepth.loadData( _kinect->getRawDepthPixels() );
       _texRGB.loadData( _kinect->getRgbPixels() );
       _texBigDepth.loadData( _kinect->getRawBigDepthPixels() );
     }
@@ -142,9 +142,6 @@ public:
     ofPopMatrix();
     
     
-//    _texDepth.draw(0,0,_texDepth.getWidth(),_texDepth.getHeight());
-    
-    
     // draw click point
     if( clickPoint.x != 0 && clickPoint.y != 0 )
     {
@@ -177,9 +174,16 @@ public:
     clickPoint = ofPoint( int((x - Const::W_MARGIN)/Const::COLOR_SCALE), int((y - Const::H_MARGIN)/Const::COLOR_SCALE) );
     float depth = _kinect->getDistanceInRgbCoord(clickPoint.x, clickPoint.y);
     
+    float wx,wy,wz;
+    _kinect->getWorldCoordinateByRgb(clickPoint.x, clickPoint.y, wx, wy, wz);
+    
+    
+//    getWorldCoordinateByRgb(int u, int v, float & x, float & y, float & z)
+    
     // get rgb_to_depth clicked
     printf("- - - - - \n");
     printf("RGB: %f %f => Depth: %f \n", clickPoint.x, clickPoint.y, depth);
+    printf("WORLD : %f %f %f \n", wx, wy, wz);
 
   }
   
